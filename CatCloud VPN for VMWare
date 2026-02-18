@@ -1,78 +1,182 @@
-如何让VMWare虚拟机走物理机的代理VPN流量
+# 如何让 VMware 虚拟机走宿主机代理 VPN
 
-不同于传统的隧道型VPN，只有**应用层支持代理协议的程序**才能走代理VPN，例如浏览器。不支持代理的协议（比如ICMP）依旧会走物理机直连，不会被代理。例如在物理机terminal中运行curl
-ifconfig.me，显示本机IP而非代理IP。本文后续提到的VPN，均指代理型VPN。
+## 背景说明
 
-经测试发现，VPN开启后，NAT模式下的虚拟机通过VMWare的虚拟NAT网关出去，再使用宿主机的物理网卡访问外部网络。虚拟机的流量对外表现为物理机IP。因此无法访问外网。
+不同于传统的隧道型 VPN，本文讨论的是 **代理型 VPN**。
 
-点击VPN程序的终端代理，会返回：
+代理 VPN 只对支持代理协议的应用生效，例如：
 
+- 浏览器
+- curl
+- 支持 HTTP/SOCKS 的程序
+
+而不支持代理的协议（如 ICMP）仍然会直连物理网络。
+
+例如：
+
+```bash
+curl ifconfig.me
+```
+
+在宿主机 terminal 中运行时，可能显示本机 IP，而不是 VPN IP。
+
+后续提到的 VPN 均指 **本地代理模式 VPN**。
+
+---
+
+## 问题现象
+
+开启 VPN 后：
+
+- VMware 虚拟机使用 NAT 模式
+- 虚拟机流量通过 VMware NAT 网关
+- 再由宿主机物理网卡访问外网
+
+结果：
+
+👉 虚拟机对外仍表现为 **物理机 IP**
+
+说明虚拟机没有成功走 VPN 代理。
+
+---
+
+## VPN 类型确认
+
+点击 VPN 程序终端代理，得到：
+
+```bash
 export https_proxy=http://127.0.0.1:33210
-
 http_proxy=http://127.0.0.1:33210
-
 all_proxy=socks5://127.0.0.1:33211
+```
 
-由此确认该VPN是本地代理模式，只在监听物理机的回环地址代理
-(127.0.0.1)，不监听来自NAT网关的流量。现在尝试让虚拟机能够访问物理机上的代理。
+可以确认：
 
-首先尝试在虚拟机内把终端代理指向物理机的NAT IP＋指定端口：
+- VPN 只监听 `127.0.0.1`
+- 不接受 NAT 网关来源流量
 
-![](media/image1.png){width="5.767361111111111in"
-height="1.4861111111111112in"}
+因此虚拟机无法直接访问该代理。
 
-发现curl请求超时，但是ping成功。Ping用的是**ICMP
-协议**，它直接走网络层，不会经过 HTTP/SOCKS代理。Curl默认走**HTTP/HTTPS
-协议**，虚拟机发送到物理机代理的被阻止。猜测是防火墙问题。在物理机PowerShell进行TCP测试，确认端口访问被阻止：
+---
 
-![](media/image2.png){width="5.761805555555555in"
-height="1.8409722222222222in"}
+## 初步尝试
 
-此时选择在物理机建立端口转发，把 127.0.0.1:33210映射到物理机的NAT
-IP，这样虚拟机访问 NAT IP时就能通过VPN出口。
+在虚拟机中将代理地址改为：
 
-**Windows端口转发:**
+```
+物理机 NAT IP + 端口
+```
 
-netsh interface portproxy add v4tov4 listenaddress=192.168.239.1
-listenport=33210 connectaddress=127.0.0.1 connectport=33210
+测试结果：
 
-netsh interface portproxy add v4tov4 listenaddress=192.168.239.1
-listenport=33211 connectaddress=127.0.0.1 connectport=33211
+- `ping` 成功
+- `curl` 超时
 
-**Windows 防火墙端口放行：**
+原因：
 
-New-NetFirewallRule -DisplayName \"VM NAT VPN Proxy 33210\" -Direction
-Inbound -LocalPort 33210 -Protocol TCP -Action Allow
+- ping 使用 ICMP（网络层）
+- curl 使用 HTTP（需要经过代理）
 
-New-NetFirewallRule -DisplayName \"VM NAT VPN Proxy 33211\" -Direction
-Inbound -LocalPort 33211 -Protocol TCP -Action Allow
+怀疑是 **防火墙阻止 TCP**。
 
-MAC:
+---
 
-![](media/image3.jpeg){width="4.613194444444445in"
-height="0.9465277777777777in"}
+## 端口测试
 
-完成后，虚拟terminal中执行curl ifconfig.me，确认IP已变为VPN
-IP。但是在浏览器中测试，IP没变。此时可以为虚拟机设置全局代理：
+在宿主机 PowerShell 进行 TCP 测试后：
 
+👉 确认端口被防火墙拦截。
+
+---
+
+## 解决方案：端口转发
+
+思路：
+
+把
+
+```
+127.0.0.1:33210
+```
+
+映射到
+
+```
+NAT IP:33210
+```
+
+这样虚拟机访问 NAT IP 时即可转发到 VPN。
+
+---
+
+### Windows 端口转发
+
+```bash
+netsh interface portproxy add v4tov4 listenaddress=192.168.239.1 listenport=33210 connectaddress=127.0.0.1 connectport=33210
+
+netsh interface portproxy add v4tov4 listenaddress=192.168.239.1 listenport=33211 connectaddress=127.0.0.1 connectport=33211
+```
+
+---
+
+### Windows 防火墙放行
+
+```bash
+New-NetFirewallRule -DisplayName "VM NAT VPN Proxy 33210" -Direction Inbound -LocalPort 33210 -Protocol TCP -Action Allow
+
+New-NetFirewallRule -DisplayName "VM NAT VPN Proxy 33211" -Direction Inbound -LocalPort 33211 -Protocol TCP -Action Allow
+```
+
+---
+
+## 虚拟机代理配置
+
+编辑：
+
+```bash
 sudo vim /etc/environment
+```
 
-并添加：
+加入：
 
-http_proxy=\"http://192.168.239.1:33210\"
+```bash
+http_proxy="http://192.168.239.1:33210"
+https_proxy="http://192.168.239.1:33210"
+all_proxy="socks5://192.168.239.1:33211"
+```
 
-https_proxy=\"http://192.168.239.1:33210\"
+---
 
-all_proxy=\"socks5://192.168.239.1:33211\"
+## 验证结果
 
-至此虚拟机设置完成，后续可以清楚端口转发以及防火墙放行：
+在虚拟机 terminal：
 
-netsh interface portproxy delete v4tov4 listenaddress=192.168.239.1
-listenport=33210
+```bash
+curl ifconfig.me
+```
 
-netsh interface portproxy delete v4tov4 listenaddress=192.168.239.1
-listenport=33211
+显示 VPN IP，说明代理成功。
 
-Remove-NetFirewallRule -DisplayName \"VM NAT VPN Proxy 33210\"
+注意：
 
-Remove-NetFirewallRule -DisplayName \"VM NAT VPN Proxy 33211\"
+浏览器未变 IP 时，需要额外设置系统代理。
+
+---
+
+## 清理配置（可选）
+
+删除端口转发：
+
+```bash
+netsh interface portproxy delete v4tov4 listenaddress=192.168.239.1 listenport=33210
+
+netsh interface portproxy delete v4tov4 listenaddress=192.168.239.1 listenport=33211
+```
+
+删除防火墙规则：
+
+```bash
+Remove-NetFirewallRule -DisplayName "VM NAT VPN Proxy 33210"
+
+Remove-NetFirewallRule -DisplayName "VM NAT VPN Proxy 33211"
+```
