@@ -1,9 +1,7 @@
 # 1. Challenge Overview
-The challenge provides a blog engine website written in OCaml using the Dream web framework and SQLite database. We are provided with the full source code and a Docker environment.
+The challenge provides a blog engine website written in OCaml using the Dream web framework and SQLite database. The flag is located at /app/flag.txt inside the container.
 
-The flag is located at /app/flag.txt inside the container.
-
-# 2. Reconnaissance & Analysis
+# 2. Reconnaissance
 Source Code Review
 The application has a typical structure. The entry point is http.ml, which defines the routes. The vulnerable endpoint is /blog/:title.
 ```
@@ -53,18 +51,15 @@ The breakthrough came from white-box auditing the tokenize function in sanitize.
 **The Bug:**
 When parsing a decimal number (e.g., 0.0), the code calculates final_i (the index of the first non-digit character after the dot). When recursively calling aux, it uses final_i + 1.
 
-This creates a "character eating" vulnerability. It skips exactly one character immediately following a valid float, without tokenizing or checking it.
+This creates a vulnerability that skips exactly one character immediately following a valid float, without tokenizing or checking it.
 
 The Bypass Payload
 If we send 0.0', the tokenizer:
 
-Parses 0.0 as a Number.
-
-Stops at ' (single quote).
-
-Skips the ' due to final_i + 1.
-
-Continues parsing.
+1. Parses 0.0 as a Number.
+2. Stops at ' (single quote).
+3. Skips the ' due to final_i + 1.
+4. Continues parsing.
 
 The single quote is ignored by the sanitizer (so it returns Safe) but remains in the raw string sent to SQLite. This allows us to break out of the string literal!
 
@@ -99,7 +94,6 @@ def exploit():
     print(f"[*] Target: {TARGET_URL}")
     print(f"[*] Exploit: OCaml Tokenizer Logic Error (Float Parsing)")
     
-    # Convert filename to char() codes to avoid using quotes or pipes
     path_ords = [str(ord(c)) for c in TARGET_FILE]
     path_payload = f"char({','.join(path_ords)})"
     
@@ -139,7 +133,6 @@ def exploit():
                 print(f"[!] Error: {e}")
                 continue
         
-        # Character found
         char_code = low
         if char_code == 0 or char_code > 127:
              print(f"\n[*] Extraction finished.")
