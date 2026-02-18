@@ -1,2 +1,2 @@
-# Hacking-notes
-Cyber practice report
+# Tarot Triad Tron
+Blogs, writeups, sharings...
