@@ -153,7 +153,4 @@ if __name__ == "__main__":
     exploit()
 ```
 
-# 6. Conclusion
-The challenge was not about finding a vulnerability in the OCaml language itself, but rather auditing a flawed logic implementation within a custom parser written in OCaml.
-
 Flag: PWNED{S33_Th3_Ch4113ng1ng_w4Snt_th3_ocaml_bu7_th3_sql1t}
