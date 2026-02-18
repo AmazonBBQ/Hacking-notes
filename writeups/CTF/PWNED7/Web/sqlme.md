@@ -6,7 +6,7 @@ The flag is located at /app/flag.txt inside the container.
 # 2. Reconnaissance & Analysis
 Source Code Review
 The application has a typical structure. The entry point is http.ml, which defines the routes. The vulnerable endpoint is /blog/:title.
-
+```
 (* http.ml *)
 let blog (db : Sql.db) (rq : Dream.request) : Dream.response Lwt.t =
   [%require_params
@@ -17,6 +17,7 @@ let blog (db : Sql.db) (rq : Dream.request) : Dream.response Lwt.t =
           "SELECT body FROM blog_posts WHERE title = '?' AND released = 1"
           title
       (* ... *)
+```
 The title parameter is inserted into a raw SQL query string: title = '?'. However, it passes through a custom sanitizer function Sql.sanitize_sql.
 
 **The Sanitizer (sanitize.ml)**
