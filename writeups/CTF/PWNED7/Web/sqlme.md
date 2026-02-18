@@ -36,7 +36,7 @@ Token Injection: Trying to inject keywords failed because the sanitizer strictly
 
 # 3. The Vulnerability: OCaml Tokenizer Logic Error
 The breakthrough came from white-box auditing the tokenize function in sanitize.ml, specifically how it handles floating-point numbers.
-
+```
 (* sanitize.ml : lines 104-108 *)
 | c when c >= '0' && c <= '9' ->
     (* ... logic to parse number ... *)
@@ -49,7 +49,7 @@ The breakthrough came from white-box auditing the tokenize function in sanitize.
         (* VULNERABILITY HERE *)
         aux (Number (float_of_string num_str) :: acc) (final_i + 1) 
       else num_str, end_i
-
+```
 **The Bug:**
 When parsing a decimal number (e.g., 0.0), the code calculates final_i (the index of the first non-digit character after the dot). When recursively calling aux, it uses final_i + 1.
 
