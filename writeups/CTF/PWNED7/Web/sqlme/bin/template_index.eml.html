@@ -1,0 +1,47 @@
+let render () =
+  <html>
+    <%s! Header.render () %>
+    <div class="content">
+      <h1>Welcome to Money Street</h1>
+      <p style="font-size: 1.1em; color: #555; margin-bottom: 20px;">
+        Your trusted source for financial insights and market analysis.
+      </p>
+      <div style="background: #e8f4f8; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #003d82;">
+        <h2 style="color: #003d82; margin-bottom: 10px;">About Us</h2>
+        <p>
+          At Money Street, we're a team of elite traders that control global financial markets. 
+          Our culture celebrates functional programming, rigorous problem-solving, and writing everything <i><a href="https://ocsigen.org/js_of_ocaml/latest/manual/overview"> even the JavaScript for our website </a></i>in OCaml.
+        </p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h3 style="color: #003d82; margin-bottom: 10px;">Quantitative Trading</h3>
+          <p style="color: #666; font-size: 0.95em;">
+            Cutting-edge algorithmic trading strategies fueled by promising Physics PhDs.
+          </p>
+          <a href="/blogs" style="color: #003d82; text-decoration: none; font-weight: 500; margin-top: 10px; display: inline-block;">
+            Explore Strategies →
+          </a>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h3 style="color: #003d82; margin-bottom: 10px;">OCaml Development</h3>
+          <p style="color: #666; font-size: 0.95em;">
+            Being the only OCaml devs that are not french academics.
+          </p>
+          <a href="/blogs" style="color: #003d82; text-decoration: none; font-weight: 500; margin-top: 10px; display: inline-block;">
+            Learn More →
+          </a>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h3 style="color: #003d82; margin-bottom: 10px;">Market Making</h3>
+          <p style="color: #666; font-size: 0.95em;">
+            We make money no matter if you're buying or selling.
+          </p>
+          <a href="/blogs" style="color: #003d82; text-decoration: none; font-weight: 500; margin-top: 10px; display: inline-block;">
+            Read Insights →
+          </a>
+        </div>
+      </div>
+    </div>
+    <%s! Footer.render () %>
+  </html>

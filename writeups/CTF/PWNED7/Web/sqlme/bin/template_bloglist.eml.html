@@ -1,0 +1,19 @@
+let render posts =
+  <html>
+    <%s! Header.render () %>
+    <div class="content">
+      <h1>Latest Market Insights</h1>
+      <p>Stay updated with our recent financial analysis and market commentary.</p>
+      <ul style="list-style: none; padding: 0;">
+        <% posts |> List.iter (fun id -> %>
+          <li style="padding: 15px 0; border-bottom: 1px solid #eee;">
+            <a href="/blog/<%s id %>" style="color: #003d82; text-decoration: none; font-weight: 500; font-size: 1.1em;">
+              Insight: <%s id %>
+            </a>
+            <p style="color: #999; margin: 5px 0 0 0; font-size: 0.95em;">Click to read the full insight</p>
+          </li>
+        <% ); %>
+      </ul>
+    </div>
+    <%s! Footer.render () %>
+  </html>

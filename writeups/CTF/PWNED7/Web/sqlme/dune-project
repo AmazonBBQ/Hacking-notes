@@ -1,0 +1,14 @@
+(lang dune 3.20)
+
+(name sqlme)
+
+(generate_opam_files true)
+
+(package
+ (name sqlme)
+ (depends
+  (ocaml (>= 4.08))
+  sqlite3
+  dream
+  dream_eml
+  ppxlib))

@@ -1,0 +1,41 @@
+(rule
+ (targets header.ml)
+ (deps header.eml.html)
+ (action
+  (run dream_eml %{deps} --workspace %{workspace_root})))
+
+(rule
+ (targets footer.ml)
+ (deps footer.eml.html)
+ (action
+  (run dream_eml %{deps} --workspace %{workspace_root})))
+
+(rule
+ (targets template_blogpost.ml)
+ (deps template_blogpost.eml.html)
+ (action
+  (run dream_eml %{deps} --workspace %{workspace_root})))
+
+(rule
+ (targets template_bloglist.ml)
+ (deps template_bloglist.eml.html)
+ (action
+  (run dream_eml %{deps} --workspace %{workspace_root})))
+
+(rule
+ (targets template_index.ml)
+ (deps template_index.eml.html)
+ (action
+  (run dream_eml %{deps} --workspace %{workspace_root})))
+
+(executable
+ (public_name sqlme)
+ (name http)
+ (libraries sqlite3 lwt dream)
+ (preprocess
+  (pps sqlme_ppx)))
+
+(executable
+ (public_name init_db)
+ (name init_db)
+ (libraries sqlite3 lwt dream))

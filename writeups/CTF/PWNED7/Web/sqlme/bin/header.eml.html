@@ -1,0 +1,80 @@
+let render () =
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Money Street</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+        color: #2c3e50;
+        line-height: 1.6;
+      }
+      header {
+        background: linear-gradient(135deg, #003d82 0%, #1a5fa0 100%);
+        color: white;
+        padding: 40px 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      header h1 {
+        font-size: 2.5em;
+        font-weight: 700;
+        margin-bottom: 10px;
+        letter-spacing: 0.5px;
+      }
+      header p {
+        font-size: 1.1em;
+        opacity: 0.95;
+        font-weight: 300;
+      }
+      nav {
+        background-color: white;
+        padding: 15px 20px;
+        border-bottom: 3px solid #003d82;
+        margin-bottom: 30px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      }
+      nav a {
+        color: #003d82;
+        text-decoration: none;
+        margin-right: 25px;
+        font-weight: 500;
+        transition: color 0.3s;
+      }
+      nav a:hover {
+        color: #1a5fa0;
+      }
+      .content {
+        max-width: 900px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      }
+      .content h1 {
+        color: #003d82;
+        margin-bottom: 20px;
+        font-size: 2em;
+      }
+      .content p {
+        margin-bottom: 15px;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Money Street</h1>
+      <p>Market and programming language making</p>
+    </header>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/blogs">Blogs</a>
+    </nav>

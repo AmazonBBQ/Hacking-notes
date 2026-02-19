@@ -1,0 +1,15 @@
+let render title body =
+  <html>
+    <%s! Header.render () %>
+    <div class="content">
+      <h1>Insight: <%s title %></h1>
+      <div style="color: #666; font-size: 0.95em; margin-bottom: 20px;">
+        <span style="color: #999;">Published on <%s "2026-02-12" %></span> | By Money Street Team
+      </div>
+      <%s body %>
+      <br/>
+      <p><em>This analysis is based on proprietary market data and expert insights from our financial advisors.</em></p>
+    </div>
+    <%s! Footer.render () %>
+  </html>
+
